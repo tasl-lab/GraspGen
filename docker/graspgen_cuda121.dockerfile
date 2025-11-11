@@ -1,6 +1,9 @@
 # Build base image
 FROM nvcr.io/nvidia/pytorch:23.07-py3 AS base
 
+# Set PYTHONPATH so it's persistent
+ENV PYTHONPATH="/code"
+
 # tmux is for debugging, osmesa is for rendering. Put all apt-get installs in this line
 RUN apt update && apt-get install -y tmux libosmesa6-dev
 
@@ -20,7 +23,7 @@ RUN pip install torch-cluster -f https://data.pyg.org/whl/torch-2.1.0+cu121.html
 RUN pip install imageio pickle5 opencv-python python-fcl
 
 # Install pyrender
-RUN pip install pyrender==0.1.45 pyglet==2.1.6 && pip install PyOpenGL==3.1.5
+RUN pip install pyrender && pip install PyOpenGL==3.1.5
 
 # Install pointnet2 modules
 COPY pointnet2_ops pointnet2_ops
@@ -56,5 +59,7 @@ RUN cd /install/Manifold/build
 RUN cd /install/Manifold/build && cmake .. -DCMAKE_BUILD_TYPE=Release
 RUN cd /install/Manifold/build && make
 ENV PATH="${PATH}:/install/Manifold/build/"
+
+RUN pip install safetensors==0.3.3
 
 WORKDIR /code/
